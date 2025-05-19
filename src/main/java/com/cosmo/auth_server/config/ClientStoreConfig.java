@@ -28,7 +28,6 @@ public class ClientStoreConfig {
                 .withId(UUID.randomUUID().toString())
                 .clientId(clientId)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Para SPAs
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri(redirectUrl) // URL da aplicação que deve receber o code Gerado para trocar pelo acess token (SPA)
