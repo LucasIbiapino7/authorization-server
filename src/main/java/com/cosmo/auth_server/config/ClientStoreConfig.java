@@ -33,6 +33,7 @@ public class ClientStoreConfig {
                 .redirectUri(redirectUrl) // URL da aplicação que deve receber o code Gerado para trocar pelo acess token (SPA)
                 .scope(OidcScopes.OPENID)
                 .scope(OidcScopes.PROFILE)
+                .scope("read")
                 .clientSettings(ClientSettings.builder()
                         .requireAuthorizationConsent(false)
                         .requireProofKey(true)
