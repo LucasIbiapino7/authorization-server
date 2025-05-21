@@ -34,6 +34,10 @@ public class SecurityFilterConfig {
 
         // Configura o tratamento de exceções e o recurso de autenticação via JWT
         http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/register").permitAll()
+                        .anyRequest().authenticated()
+                )
                 .exceptionHandling((exception) -> exception.authenticationEntryPoint(
                         new LoginUrlAuthenticationEntryPoint("/login"))) // Redireciona pro endpoint
                 // de login quando nao esta logado
