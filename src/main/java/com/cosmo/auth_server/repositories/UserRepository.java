@@ -14,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "INNER JOIN tb_role ON tb_user_role.role_id = tb_role.id " +
             "WHERE email = :email")
     List<UserDetailsProjection> searchUserAndRolesByEmail(String email);
+
+    boolean existsByEmail(String email);
 }
