@@ -32,24 +32,25 @@ public class SecurityFilterConfig {
         // Obtém a instância do configurador para configurar o OIDC
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
 
-        // Configura o tratamento de exceções e o recurso de autenticação via JWT
         http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register").permitAll()
-                        .anyRequest().authenticated()
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
                 )
-                .exceptionHandling((exception) -> exception.authenticationEntryPoint(
-                        new LoginUrlAuthenticationEntryPoint("/login"))) // Redireciona pro endpoint
-                // de login quando nao esta logado
-                        .oauth2ResourceServer((resource) -> resource.jwt(Customizer.withDefaults())); // Aceita
-                // endpoints extras
+                .formLogin(Customizer.withDefaults());
+
+        // Configura o tratamento de exceções e o recurso de autenticação via JWT
+        http.oauth2ResourceServer((resource) -> resource.jwt(Customizer.withDefaults())); // Aceita endpoints extras
         return http.build();
     }
 
     @Bean
     @Order(2)
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((auth) -> auth.anyRequest().authenticated())
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers("/auth/register")
+                        .permitAll().anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())
                 .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
         ;
