@@ -36,7 +36,8 @@ public class SecurityFilterConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
                 )
-                .formLogin(Customizer.withDefaults());
+                .formLogin(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         // Configura o tratamento de exceções e o recurso de autenticação via JWT
         http.oauth2ResourceServer((resource) -> resource.jwt(Customizer.withDefaults())); // Aceita endpoints extras
