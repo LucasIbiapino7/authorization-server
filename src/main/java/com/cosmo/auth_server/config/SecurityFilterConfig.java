@@ -36,7 +36,7 @@ public class SecurityFilterConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
                 )
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form.loginPage("/login").permitAll())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         // Configura o tratamento de exceções e o recurso de autenticação via JWT
@@ -52,7 +52,7 @@ public class SecurityFilterConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/auth/register")
                         .permitAll().anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form.loginPage("/login").permitAll())
                 .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
         ;
         return http.build();

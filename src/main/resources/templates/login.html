@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Login - Spring Auth Demo</title>
+    <style>
+        :root {
+          --brand: #4f46e5;
+          --brand-dark: #4338ca;
+          --bg: #f8fafc;
+          --text: #1e293b;
+        }
+
+        body {
+          margin: 0;
+          font-family: system-ui, sans-serif;
+          background: var(--bg);
+          color: var(--text);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+        }
+
+        .card {
+          background: white;
+          padding: 2rem 3rem;
+          border-radius: 10px;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+          max-width: 400px;
+          width: 100%;
+          text-align: center;
+        }
+
+        h1 {
+          margin-bottom: 1.5rem;
+          font-size: 1.75rem;
+          color: var(--brand-dark);
+        }
+
+        form {
+          display: flex;
+          flex-direction: column;
+        }
+
+        input {
+          padding: 0.75rem;
+          margin-bottom: 1rem;
+          border: 1px solid #ccc;
+          border-radius: 6px;
+          font-size: 1rem;
+        }
+
+        button {
+          background: var(--brand);
+          color: white;
+          border: none;
+          padding: 0.75rem;
+          border-radius: 6px;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+
+        button:hover {
+          background: var(--brand-dark);
+        }
+
+        .error-message {
+          color: red;
+          font-size: 0.95rem;
+          margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Login</h1>
+
+    <div th:if="${param.error}" class="error-message">
+        Credenciais inválidas. Tente novamente.
+    </div>
+
+    <form th:action="@{/login}" method="post">
+        <input type="text" name="username" placeholder="E-mail" required />
+        <input type="password" name="password" placeholder="Senha" required />
+        <button type="submit">Entrar</button>
+    </form>
+</div>
+</body>
+</html>
