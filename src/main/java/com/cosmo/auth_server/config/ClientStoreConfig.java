@@ -22,6 +22,9 @@ public class ClientStoreConfig {
     @Value("${security.redirect-uri}")
     private String redirectUrl;
 
+    @Value("${security.post-logout-redirect-uri}")
+    private String logoutUrl;
+
     @Bean
     RegisteredClientRepository repository(){
         RegisteredClient registeredClient = RegisteredClient
@@ -30,6 +33,7 @@ public class ClientStoreConfig {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Para SPAs
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .postLogoutRedirectUri(logoutUrl)
                 .redirectUri(redirectUrl) // URL da aplicação que deve receber o code Gerado para trocar pelo acess token (SPA)
                 .scope(OidcScopes.OPENID)
                 .scope(OidcScopes.PROFILE)
