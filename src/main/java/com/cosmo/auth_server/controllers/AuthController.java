@@ -2,6 +2,7 @@ package com.cosmo.auth_server.controllers;
 
 import com.cosmo.auth_server.dtos.RegisterDTO;
 import com.cosmo.auth_server.services.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody RegisterDTO dto){
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterDTO dto){
         authService.register(dto);
         return ResponseEntity.ok().build();
     }
