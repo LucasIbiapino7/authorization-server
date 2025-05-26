@@ -1,5 +1,6 @@
 package com.cosmo.auth_server.enitities;
 
+import com.cosmo.auth_server.enums.AuthProvider;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +20,8 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String email;
     private String password;
+
+    private AuthProvider provider;
 
     @ManyToMany
     @JoinTable(name = "tb_user_role",
@@ -72,6 +75,14 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    public AuthProvider getProvider() {
+        return provider;
+    }
+
+    public void setProvider(AuthProvider provider) {
+        this.provider = provider;
     }
 
     public void setPassword(String password) {
