@@ -1,0 +1,7 @@
+ALTER TABLE tb_user
+    ADD COLUMN provider VARCHAR(20) NOT NULL DEFAULT 'LOCAL';
+
+ALTER TABLE tb_user
+    ALTER COLUMN password DROP NOT NULL;
+
+UPDATE tb_user SET provider = 'LOCAL' WHERE provider IS NULL;
