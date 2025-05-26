@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
@@ -51,15 +52,25 @@ public class TokenStoreConfig {
     public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
         return context -> {
             if ("access_token".equals(context.getTokenType().getValue())) {
-                UserDetails principal = (UserDetails) context.getPrincipal().getPrincipal();
-                List<String> roles = principal.getAuthorities()
+                var principal = context.getPrincipal().getPrincipal();
+
+                String username;
+                if (principal instanceof UserDetails ud) {          // login local
+                    username = ud.getUsername();
+                } else if (principal instanceof OidcUser oidc) {   // Google
+                    username = oidc.getEmail();                    // ou getSubject()
+                } else {
+                    username = "anonymous";
+                }
+
+                List<String> roles = context.getPrincipal().getAuthorities()
                         .stream()
                         .map(GrantedAuthority::getAuthority)
                         .toList();
 
                 context.getClaims()
                         .claim("authorities", roles)
-                        .claim("username", principal.getUsername());
+                        .claim("username", username);
             }
         };
     }

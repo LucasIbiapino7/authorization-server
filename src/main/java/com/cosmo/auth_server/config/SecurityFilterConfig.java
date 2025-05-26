@@ -1,5 +1,6 @@
 package com.cosmo.auth_server.config;
 
+import com.cosmo.auth_server.services.CustomOidcUserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,13 +47,17 @@ public class SecurityFilterConfig {
 
     @Bean
     @Order(2)
-    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, CustomOidcUserService oidcUserService) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/auth/register")
                         .permitAll().anyRequest().authenticated())
                 .formLogin(form -> form.loginPage("/login").permitAll())
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(info -> info.oidcUserService(oidcUserService))
+                )
                 .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
         ;
         return http.build();
