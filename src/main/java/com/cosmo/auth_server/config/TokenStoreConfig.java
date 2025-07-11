@@ -1,14 +1,18 @@
 package com.cosmo.auth_server.config;
 
 import com.cosmo.auth_server.enitities.User;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.apache.tomcat.util.file.ConfigurationSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +23,9 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
@@ -29,6 +36,8 @@ import java.util.UUID;
 @Configuration
 public class TokenStoreConfig {
 
+    @Value("${security.jwk.location}")
+    private Resource jwkLocation;
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -37,9 +46,23 @@ public class TokenStoreConfig {
     // permite que o endpoint /.well-known/jwks.json exponha a chave pública para clientes validarem os tokens.
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
-        RSAKey rsaKey = generateRsa();
-        JWKSet jwkSet = new JWKSet(rsaKey);
-        return (selector, ctx) -> selector.select(jwkSet);
+        RSAKey rsaKey = loadRsaKey();
+        return (selector, ctx) -> selector.select(new JWKSet(rsaKey));
+    }
+
+    private RSAKey loadRsaKey() {
+        try (InputStream in = jwkLocation.getInputStream()) {
+            String pem = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            JWK jwk = JWK.parseFromPEMEncodedObjects(pem);
+            if (!(jwk instanceof RSAKey rsa)) {
+                throw new IllegalStateException("PEM is not an RSA key");
+            }
+            return new RSAKey.Builder(rsa)
+                    .keyID("lab-key-1")
+                    .build();
+        } catch (IOException | JOSEException e) {
+            throw new IllegalStateException("Failed to load RSA key", e);
+        }
     }
 
     // usado pelo Spring para validar tokens automaticamente quando configurado com .oauth2ResourceServer().jwt().
@@ -82,24 +105,24 @@ public class TokenStoreConfig {
     }
 
 
-    private static com.nimbusds.jose.jwk.RSAKey generateRsa() {
-        KeyPair keyPair = generateRsaKey();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        return new com.nimbusds.jose.jwk.RSAKey.Builder(publicKey).privateKey(privateKey).keyID(UUID.randomUUID().toString()).build();
-    }
-
-    private static KeyPair generateRsaKey() {
-        KeyPair keyPair;
-        try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-            keyPair = keyPairGenerator.generateKeyPair();
-        } catch (Exception ex) {
-            throw new IllegalStateException(ex);
-        }
-        return keyPair;
-    }
+//    private static com.nimbusds.jose.jwk.RSAKey generateRsa() {
+//        KeyPair keyPair = generateRsaKey();
+//        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+//        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+//        return new com.nimbusds.jose.jwk.RSAKey.Builder(publicKey).privateKey(privateKey).keyID(UUID.randomUUID().toString()).build();
+//    }
+//
+//    private static KeyPair generateRsaKey() {
+//        KeyPair keyPair;
+//        try {
+//            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+//            keyPairGenerator.initialize(2048);
+//            keyPair = keyPairGenerator.generateKeyPair();
+//        } catch (Exception ex) {
+//            throw new IllegalStateException(ex);
+//        }
+//        return keyPair;
+//    }
 
 
 }
