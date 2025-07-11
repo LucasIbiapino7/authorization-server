@@ -1,5 +1,6 @@
 package com.cosmo.auth_server.config;
 
+import com.cosmo.auth_server.enitities.User;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -55,12 +56,16 @@ public class TokenStoreConfig {
                 var principal = context.getPrincipal().getPrincipal();
 
                 String username;
-                if (principal instanceof UserDetails ud) {          // login local
-                    username = ud.getUsername();
+                String fullName;
+                if (principal instanceof User user) {          // login local
+                    username = user.getUsername();
+                    fullName = user.getName();
                 } else if (principal instanceof OidcUser oidc) {   // Google
-                    username = oidc.getEmail();                    // ou getSubject()
+                    username = oidc.getEmail();
+                    fullName = oidc.getFullName();
                 } else {
                     username = "anonymous";
+                    fullName = "anonymous";
                 }
 
                 List<String> roles = context.getPrincipal().getAuthorities()
@@ -70,6 +75,7 @@ public class TokenStoreConfig {
 
                 context.getClaims()
                         .claim("authorities", roles)
+                        .claim("name", fullName)
                         .claim("username", username);
             }
         };
