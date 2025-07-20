@@ -3,6 +3,7 @@ package com.cosmo.auth_server.services;
 import com.cosmo.auth_server.dtos.RegisterDTO;
 import com.cosmo.auth_server.enitities.Role;
 import com.cosmo.auth_server.enitities.User;
+import com.cosmo.auth_server.enums.AuthProvider;
 import com.cosmo.auth_server.repositories.RoleRepository;
 import com.cosmo.auth_server.repositories.UserRepository;
 import com.cosmo.auth_server.services.exceptions.EmailException;
@@ -31,6 +32,7 @@ public class AuthService {
         User newUser = new User();
         newUser.setEmail(dto.getEmail().toLowerCase());
         newUser.setName(dto.getName());
+        newUser.setProvider(AuthProvider.LOCAL);
         newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
         Role roleUser = roleRepository.findByAuthority("ROLE_USER");
         newUser.addRole(roleUser);
